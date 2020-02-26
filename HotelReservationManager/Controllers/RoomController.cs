@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HotelReservationManager.Data;
 using HotelReservationManager.Data.Models;
 using HotelReservationManager.Models.Room;
+using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
@@ -22,12 +23,14 @@ namespace HotelReservationManager.Controllers
         }
 
         // GET: Rooms
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             return View(await _context.Rooms.ToListAsync());
         }
 
         // GET: Rooms/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -38,6 +41,7 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Capacity,Type,Free,Price,PriceChildren,Number")] CreateRoomViewModel roomVM)
         {
             if (ModelState.IsValid)
@@ -60,6 +64,7 @@ namespace HotelReservationManager.Controllers
         }
 
         // GET: Rooms/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
@@ -91,6 +96,7 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit([Bind("Capacity,Type,Free,Price,PriceChildren,Number,Id")] EditRoomViewModel roomVM)
         {
             if (ModelState.IsValid)
@@ -125,6 +131,7 @@ namespace HotelReservationManager.Controllers
         }
 
         // GET: Rooms/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
@@ -145,6 +152,7 @@ namespace HotelReservationManager.Controllers
         // POST: Rooms/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var room = await _context.Rooms.FindAsync(id);
