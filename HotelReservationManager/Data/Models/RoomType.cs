@@ -7,9 +7,9 @@ namespace HotelReservationManager.Data.Models
 {
     public enum RoomType
     {
-        TwoLegs,
+        TwoBeds,
         Appartment,
-        DoubleLegs, 
+        DoubleBeds, 
         PentaHouse,
         Maisonette
     }

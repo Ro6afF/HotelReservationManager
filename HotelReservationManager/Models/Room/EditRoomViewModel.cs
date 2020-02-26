@@ -1,12 +1,14 @@
-﻿using System;
+﻿using HotelReservationManager.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HotelReservationManager.Data.Models
+namespace HotelReservationManager.Models.Room
 {
-    public class Room : DbEntry
+    public class EditRoomViewModel
     {
+        public string Id { get; set; }
         public uint Capacity { get; set; }
         public RoomType Type { get; set; }
         public bool Free { get; set; }
