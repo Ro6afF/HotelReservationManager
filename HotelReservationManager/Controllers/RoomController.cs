@@ -101,9 +101,9 @@ namespace HotelReservationManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                var room = await _context.Rooms.FindAsync(roomVM.Id);
                 try
                 {
+                    var room = await _context.Rooms.FindAsync(roomVM.Id);
                     room.Capacity = roomVM.Capacity;
                     room.Type = roomVM.Type;
                     room.Free = roomVM.Free;
@@ -114,9 +114,9 @@ namespace HotelReservationManager.Controllers
                     _context.Update(room);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!RoomExists(room.Id))
+                    if (!RoomExists(roomVM.Id))
                     {
                         return NotFound();
                     }

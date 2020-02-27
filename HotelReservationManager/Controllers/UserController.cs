@@ -34,24 +34,6 @@ namespace HotelReservationManager.Controllers
             return View(await _context.Users.ToListAsync());
         }
 
-        // GET: User/Details/5
-        public async Task<IActionResult> Details(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
         // GET: User/Create
         public IActionResult Create()
         {
@@ -107,7 +89,18 @@ namespace HotelReservationManager.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+            var userVM = new EditUserViewModel
+            {
+                EGN = user.EGN,
+                Email = user.Email,
+                UserName = user.UserName,
+                PhoneNumber = user.PhoneNumber,
+                LastName = user.LastName,
+                FirstName = user.LastName,
+                SecondName = user.SecondName,
+                Id = user.Id
+            };
+            return View(userVM);
         }
 
         // POST: User/Edit/5
@@ -115,23 +108,27 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("FirstName,SecondName,LastName,EGN,HireTime,Active,FireTime,Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] User user)
+        public async Task<IActionResult> Edit([Bind("FirstName,SecondName,LastName,EGN,Id,UserName,Email,PhoneNumber")] EditUserViewModel userVM)
         {
-            if (id != user.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var user = await _context.Users.FindAsync(userVM.Id);
+                    user.FirstName = userVM.FirstName;
+                    user.SecondName = userVM.SecondName;
+                    user.LastName = userVM.LastName;
+                    user.EGN = userVM.EGN;
+                    user.PhoneNumber = userVM.PhoneNumber;
+                    user.UserName = userVM.UserName;
+                    user.Email = userVM.Email;
+
                     _context.Update(user);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!UserExists(user.Id))
+                    if (!UserExists(userVM.Id))
                     {
                         return NotFound();
                     }
@@ -142,7 +139,7 @@ namespace HotelReservationManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            return View(userVM);
         }
 
         // GET: User/Delete/5
@@ -170,6 +167,26 @@ namespace HotelReservationManager.Controllers
         {
             var user = await _context.Users.FindAsync(id);
             _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        public async Task<IActionResult> TogleActivity(string id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user.Active)
+            {
+                user.Active = false;
+                user.FireTime = DateTime.Now;
+            }
+            else
+            {
+                user.Active = true;
+                user.FireTime = null;
+                user.HireTime = DateTime.Now;
+            }
+            _context.Update(user);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
