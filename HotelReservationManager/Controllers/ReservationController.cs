@@ -8,22 +8,26 @@ using Microsoft.EntityFrameworkCore;
 using HotelReservationManager.Data;
 using HotelReservationManager.Data.Models;
 using HotelReservationManager.Models.Reservation;
+using Microsoft.AspNetCore.Identity;
 
 namespace HotelReservationManager.Controllers
 {
     public class ReservationController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ReservationController(ApplicationDbContext context)
+        public ReservationController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Reservation
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Reservations.ToListAsync());
+            var reservations = await _context.Reservations.ToListAsync();
+            return View(reservations);
         }
 
         // GET: Reservation/Details/5
@@ -60,10 +64,22 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id")] CreateReservationViewModel reservationVM)
+        public async Task<IActionResult> Create([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId")] CreateReservationViewModel reservationVM)
         {
             if (ModelState.IsValid)
             {
+                var currentUser = await _context.Users.FindAsync(_userManager.GetUserId(User));
+                if (currentUser == null)
+                {
+                    return Unauthorized();
+                }
+
+                var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
+                if (selectedRoom == null)
+                {
+                    return NotFound();
+                }
+
                 // TODO: add creator id
                 var reservation = new Reservation
                 {
@@ -73,7 +89,8 @@ namespace HotelReservationManager.Controllers
                     CheckInTime = reservationVM.CheckInTime,
                     CheckOutTime = reservationVM.CheckOutTime,
                     Guests = reservationVM.Clients,
-                    Room = reservationVM.Room,
+                    Room = selectedRoom,
+                    Creator = currentUser
                 };
                 _context.Add(reservation);
                 await _context.SaveChangesAsync();

@@ -12,9 +12,12 @@
         <a asp-action="Create">Create New</a>
     </p>
 }
-<table class="table">
+<table class="table table-striped table-hover" id="roomTable" style="width: 100%">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Number)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Capacity)
             </th>
@@ -30,9 +33,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.PriceChildren)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Number)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -40,6 +40,9 @@
         @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Number)
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Capacity)
                 </td>
@@ -55,9 +58,6 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.PriceChildren)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Number)
-                </td>
                 @if (User.IsInRole("Admin"))
                 {
                     <td>
@@ -69,3 +69,14 @@
         }
     </tbody>
 </table>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#roomTable').DataTable({
+                "lengthMenu": [10, 25, 50]
+            });
+        });
+    </script>
+}

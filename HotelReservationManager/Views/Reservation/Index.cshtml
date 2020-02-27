@@ -13,6 +13,9 @@
     <thead>
         <tr>
             <th>
+                Room number
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.CheckInTime)
             </th>
             <th>
@@ -30,6 +33,8 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CheckInTime)
             </td>

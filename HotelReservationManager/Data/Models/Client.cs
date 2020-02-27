@@ -13,10 +13,12 @@ namespace HotelReservationManager.Data.Models
         [Required]
         public string LastName { get; set; }
         [Required]
+        [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
         [Required]
         public string Email { get; set; }
         [Required]
+        [Display(Name = "Adult")]
         public bool Mature { get; set; }
     }
 }
