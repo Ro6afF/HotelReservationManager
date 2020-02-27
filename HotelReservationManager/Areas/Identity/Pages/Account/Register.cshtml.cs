@@ -75,7 +75,7 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
             public string SecondName { get; set; }
 
             [Required]
-            [Display(Name = "Lase name")]
+            [Display(Name = "Last name")]
             public string LastName { get; set; }
 
             [Required]
@@ -87,16 +87,17 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
             public string PhoneNumber { get; set; }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        public IActionResult OnGetAsync(string returnUrl = null)
         {
             ReturnUrl = returnUrl;
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            if (_userManager.Users.Count() > 0)
+                return Unauthorized();
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
                 var user = new User
@@ -109,6 +110,8 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
                     SecondName = Input.SecondName,
                     LastName = Input.LastName,
                     PhoneNumber = Input.PhoneNumber,
+                    Active = true,
+                    HireTime = DateTime.Now
                 };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)

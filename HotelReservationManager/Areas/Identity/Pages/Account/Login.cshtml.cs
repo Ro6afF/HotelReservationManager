@@ -22,7 +22,7 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(SignInManager<User> signInManager, 
+        public LoginModel(SignInManager<User> signInManager,
             ILogger<LoginModel> logger,
             UserManager<User> userManager)
         {
@@ -84,6 +84,13 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    if (!_userManager.Users.Where(x => x.UserName == Input.UserName).FirstOrDefault().Active)
+                    {
+                        _logger.LogInformation("This user has been fired");
+                        await _signInManager.SignOutAsync();
+                        ModelState.AddModelError(string.Empty, "This user has no access to the system");
+                        return Page();
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

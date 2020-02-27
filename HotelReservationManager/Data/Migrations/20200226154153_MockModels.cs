@@ -98,7 +98,7 @@ namespace HotelReservationManager.Data.Migrations
                     FirstName = table.Column<string>(nullable: true),
                     LastName = table.Column<string>(nullable: true),
                     PhoneNumber = table.Column<string>(nullable: true),
-                    Mail = table.Column<string>(nullable: true),
+                    Email = table.Column<string>(nullable: true),
                     Mature = table.Column<bool>(nullable: false),
                     ReservationId = table.Column<string>(nullable: true)
                 },

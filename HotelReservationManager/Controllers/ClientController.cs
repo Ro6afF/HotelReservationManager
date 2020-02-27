@@ -54,7 +54,7 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Mail,Mature,Id")] Client client)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Email,Mature,Id")] Client client)
         {
             if (ModelState.IsValid)
             {
@@ -86,7 +86,7 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,PhoneNumber,Mail,Mature,Id")] Client client)
+        public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,PhoneNumber,Email,Mature,Id")] Client client)
         {
             if (id != client.Id)
             {

@@ -9,6 +9,7 @@ namespace HotelReservationManager.Data.Models
 {
     public class DbEntry
     {
+        [Key]
         public string Id { get; set; }
     }
 }
