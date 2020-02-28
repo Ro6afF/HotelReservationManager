@@ -33,7 +33,10 @@
             <th>
                 @Html.DisplayNameFor(model => model.PriceChildren)
             </th>
-            <th></th>
+            @if (User.IsInRole("Admin"))
+            {
+                <th></th>
+            }
         </tr>
     </thead>
     <tbody>
@@ -50,7 +53,7 @@
                     @Html.DisplayFor(modelItem => item.Type)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Free)
+                    @(item.Free ? "Free" : "Occupied")
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Price)

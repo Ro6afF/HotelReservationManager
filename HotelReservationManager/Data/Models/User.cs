@@ -38,7 +38,5 @@ namespace HotelReservationManager.Data.Models
 
         [Display(Name = "Disabled on")]
         public DateTime? FireTime { get; set; }
-
-
     }
 }

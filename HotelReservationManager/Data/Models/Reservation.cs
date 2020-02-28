@@ -8,19 +8,40 @@ namespace HotelReservationManager.Data.Models
 {
     public class Reservation : DbEntry
     {
+
         [Required]
         public Room Room { get; set; }
+
         [Required]
         public User Creator { get; set; }
+
         [Required]
         public IEnumerable<Client> Guests { get; set; }
+
         [Required]
         public DateTime CheckInTime { get; set; }
+
         [Required]
         public DateTime CheckOutTime { get; set; }
+
         [Required]
         public bool Breakfast { get; set; }
+
         [Required]
         public bool AllInclusive { get; set; }
+
+        public double TotalPrice
+        {
+            get
+            {
+                double price = 0;
+                foreach (var client in Guests)
+                {
+                    price += (client.Mature) ? Room.Price : Room.PriceChildren;
+                }
+                return price;
+            }
+        }
+
     }
 }

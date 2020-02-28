@@ -26,6 +26,7 @@ namespace HotelReservationManager.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
+            _context.UpdateRooms();
             return View(await _context.Rooms.ToListAsync());
         }
 

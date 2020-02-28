@@ -26,7 +26,7 @@ namespace HotelReservationManager.Controllers
         // GET: Reservation
         public async Task<IActionResult> Index()
         {
-            var reservations = await _context.Reservations.ToListAsync();
+            var reservations = await _context.Reservations.Include(x => x.Creator).Include(x => x.Room).Include(x => x.Guests).ToListAsync();
             return View(reservations);
         }
 
@@ -38,8 +38,8 @@ namespace HotelReservationManager.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var reservation = await _context.Reservations.Include(x => x.Creator).Include(x => x.Room).Include(x => x.Guests).FirstOrDefaultAsync(m => m.Id == id);
+
             if (reservation == null)
             {
                 return NotFound();
@@ -51,6 +51,7 @@ namespace HotelReservationManager.Controllers
         // GET: Reservation/Create
         public async Task<IActionResult> Create()
         {
+            _context.UpdateRooms();
             var reservationVM = new CreateReservationViewModel
             {
                 AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync(),
@@ -79,8 +80,9 @@ namespace HotelReservationManager.Controllers
                 {
                     return NotFound();
                 }
+                selectedRoom.Free = false;
+                _context.Update(selectedRoom);
 
-                // TODO: add creator id
                 var reservation = new Reservation
                 {
                     Id = Guid.NewGuid().ToString(),
@@ -88,9 +90,10 @@ namespace HotelReservationManager.Controllers
                     Breakfast = reservationVM.Breakfast,
                     CheckInTime = reservationVM.CheckInTime,
                     CheckOutTime = reservationVM.CheckOutTime,
-                    Guests = reservationVM.Clients,
+                    // Guests = reservationVM.Clients,
+                    Guests = _context.Clients.ToList(),
                     Room = selectedRoom,
-                    Creator = currentUser
+                    Creator = currentUser,
                 };
                 _context.Add(reservation);
                 await _context.SaveChangesAsync();
@@ -168,6 +171,7 @@ namespace HotelReservationManager.Controllers
             return View(reservation);
         }
 
+        // TODO: Free the room
         // POST: Reservation/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

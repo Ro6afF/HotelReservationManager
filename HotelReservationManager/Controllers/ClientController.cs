@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using HotelReservationManager.Data;
 using HotelReservationManager.Data.Models;
+using HotelReservationManager.Models.Client;
 
 namespace HotelReservationManager.Controllers
 {
@@ -54,15 +55,24 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Email,Mature,Id")] Client client)
+        public async Task<IActionResult> Create([Bind("FirstName,LastName,PhoneNumber,Email,Mature")] CreateClientViewModel clientVM)
         {
             if (ModelState.IsValid)
             {
+                var client = new Client
+                {
+                    Email = clientVM.Email,
+                    FirstName = clientVM.FirstName,
+                    Id = Guid.NewGuid().ToString(),
+                    LastName = clientVM.LastName,
+                    Mature = clientVM.Mature,
+                    PhoneNumber = clientVM.PhoneNumber
+                };
                 _context.Add(client);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(client);
+            return View(clientVM);
         }
 
         // GET: Client/Edit/5
@@ -78,7 +88,16 @@ namespace HotelReservationManager.Controllers
             {
                 return NotFound();
             }
-            return View(client);
+            var clientVM = new EditClientViewModel
+            {
+                Email = client.Email,
+                FirstName = client.FirstName,
+                Id = client.Id,
+                LastName = client.LastName,
+                Mature = client.Mature,
+                PhoneNumber = client.PhoneNumber
+            };
+            return View(clientVM);
         }
 
         // POST: Client/Edit/5
@@ -86,23 +105,27 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("FirstName,LastName,PhoneNumber,Email,Mature,Id")] Client client)
+        public async Task<IActionResult> Edit([Bind("FirstName,LastName,PhoneNumber,Email,Mature,Id")] EditClientViewModel clientVM)
         {
-            if (id != client.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var client = new Client
+                    {
+                        Email = clientVM.Email,
+                        FirstName = clientVM.FirstName,
+                        Id = clientVM.Id,
+                        LastName = clientVM.LastName,
+                        Mature = clientVM.Mature,
+                        PhoneNumber = clientVM.PhoneNumber
+                    };
                     _context.Update(client);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ClientExists(client.Id))
+                    if (!ClientExists(clientVM.Id))
                     {
                         return NotFound();
                     }
@@ -113,7 +136,7 @@ namespace HotelReservationManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(client);
+            return View(clientVM);
         }
 
         // GET: Client/Delete/5

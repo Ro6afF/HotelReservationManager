@@ -22,10 +22,13 @@
                 <select asp-for="Type" class="form-control" asp-items="Html.GetEnumSelectList<HotelReservationManager.Data.Models.RoomType>()"></select>
                 <span asp-validation-for="Type" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Free" /> @Html.DisplayNameFor(model => model.Free)
-                </label>
+            <div class="form-group">
+                <label asp-for="Free" class="control-label"></label>
+                <select asp-for="Free" class="form-control">
+                    <option value="True">Free</option>
+                    <option value="False">Occupied</option>
+                </select>
+                <span asp-validation-for="Free" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Price" class="control-label"></label>

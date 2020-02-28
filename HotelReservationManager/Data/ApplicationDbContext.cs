@@ -15,6 +15,11 @@ namespace HotelReservationManager.Data
         {
         }
 
+        public void UpdateRooms()
+        {
+            // TODO
+        }
+
         public DbSet<Client> Clients { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
