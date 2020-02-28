@@ -72,6 +72,11 @@ namespace HotelReservationManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId")] CreateReservationViewModel reservationVM)
         {
+            if (reservationVM.CheckOutTime < reservationVM.CheckInTime)
+            {
+                ModelState.AddModelError(string.Empty, "The check-out cannot be before the check-in");
+            }
+
             if (ModelState.IsValid)
             {
                 var currentUser = await _context.Users.FindAsync(_userManager.GetUserId(User));
@@ -107,6 +112,8 @@ namespace HotelReservationManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync();
+            reservationVM.AvaiableGuests = await _context.Clients.ToListAsync();
             return View(reservationVM);
         }
 
@@ -146,6 +153,11 @@ namespace HotelReservationManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId,Clients")] EditReservationViewModel reservationVM)
         {
+            if(reservationVM.CheckOutTime < reservationVM.CheckInTime)
+            {
+                ModelState.AddModelError(string.Empty, "The check-out cannot be before the check-in");
+            }
+
             if (ModelState.IsValid)
             {
                 var currentUser = await _context.Users.FindAsync(_userManager.GetUserId(User));
@@ -153,16 +165,17 @@ namespace HotelReservationManager.Controllers
                 {
                     return Unauthorized();
                 }
+
                 var reservation = await _context.Reservations.Include(x => x.Room).Where(x => x.Id == reservationVM.Id).FirstOrDefaultAsync();
 
                 var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
-                _context.Update(selectedRoom);
+
                 try
                 {
                     reservation.AllInclusive = reservationVM.AllInclusive;
                     reservation.Breakfast = reservationVM.Breakfast;
                     reservation.CheckInTime = reservationVM.CheckInTime;
-                    reservation.CheckOutTime = reservation.CheckOutTime;
+                    reservation.CheckOutTime = reservationVM.CheckOutTime;
                     reservation.Creator = currentUser;
                     reservation.Guests = _context.Clients.ToList();
                     reservation.Room = selectedRoom;
@@ -214,7 +227,7 @@ namespace HotelReservationManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var reservation = await _context.Reservations.Where(x => x.Id == id).FirstOrDefaultAsync();
+            var reservation = await _context.Reservations.Include(x => x.Room).Include(x => x.Guests).Include(x => x.Creator).Where(x => x.Id == id).FirstOrDefaultAsync();
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

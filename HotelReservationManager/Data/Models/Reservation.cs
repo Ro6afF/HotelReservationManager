@@ -12,12 +12,9 @@ namespace HotelReservationManager.Data.Models
         [Required]
         public Room Room { get; set; }
 
-
         [Required]
         public User Creator { get; set; }
 
-
-        [Required]
         public IEnumerable<Client> Guests { get; set; }
 
         [Required]

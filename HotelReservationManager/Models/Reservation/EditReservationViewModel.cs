@@ -14,7 +14,6 @@ namespace HotelReservationManager.Models.Reservation
         public string RoomId { get; set; }
         public string CreatorId { get; set; }
 
-        [Required]
         public IEnumerable<Data.Models.Client> Clients { get; set; }
 
         [Required]
