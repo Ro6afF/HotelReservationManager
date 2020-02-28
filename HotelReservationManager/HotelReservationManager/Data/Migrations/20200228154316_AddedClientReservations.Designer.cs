@@ -10,14 +10,14 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HotelReservationManager.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200227084933_AddedReservationRoomConnetion")]
-    partial class AddedReservationRoomConnetion
+    [Migration("20200228154316_AddedClientReservations")]
+    partial class AddedClientReservations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.0.0")
+                .HasAnnotation("ProductVersion", "3.1.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -32,7 +32,8 @@ namespace HotelReservationManager.Data.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -45,14 +46,27 @@ namespace HotelReservationManager.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.HasKey("Id");
+
+                    b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("HotelReservationManager.Data.Models.ClientReservation", b =>
+                {
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("ReservationId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClientId", "ReservationId");
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("Clients");
+                    b.ToTable("ClientReservation");
                 });
 
             modelBuilder.Entity("HotelReservationManager.Data.Models.Reservation", b =>
@@ -80,6 +94,9 @@ namespace HotelReservationManager.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
@@ -102,7 +119,8 @@ namespace HotelReservationManager.Data.Migrations
 
                     b.Property<string>("Number")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
@@ -135,7 +153,8 @@ namespace HotelReservationManager.Data.Migrations
 
                     b.Property<string>("EGN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(10)")
+                        .HasMaxLength(10);
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(256)")
@@ -149,14 +168,16 @@ namespace HotelReservationManager.Data.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
 
                     b.Property<DateTime>("HireTime")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -184,7 +205,8 @@ namespace HotelReservationManager.Data.Migrations
 
                     b.Property<string>("SecondName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -341,11 +363,19 @@ namespace HotelReservationManager.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("HotelReservationManager.Data.Models.Client", b =>
+            modelBuilder.Entity("HotelReservationManager.Data.Models.ClientReservation", b =>
                 {
-                    b.HasOne("HotelReservationManager.Data.Models.Reservation", null)
-                        .WithMany("Clients")
-                        .HasForeignKey("ReservationId");
+                    b.HasOne("HotelReservationManager.Data.Models.Client", "Client")
+                        .WithMany("ClientReservations")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelReservationManager.Data.Models.Reservation", "Reservation")
+                        .WithMany("ClientReservations")
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HotelReservationManager.Data.Models.Reservation", b =>

@@ -43,7 +43,18 @@ namespace HotelReservationManager.Controllers
                 return NotFound();
             }
 
-            return View(client);
+            var clientVM = new DetailsClientViewModel
+            {
+                Reservations = client.ClientReservations.Select(x => x.Reservation).ToList(),
+                Email = client.Email,
+                FirstName = client.FirstName,
+                Id = client.Id,
+                LastName = client.LastName,
+                Mature = client.Mature,
+                PhoneNumber = client.PhoneNumber
+            };
+
+            return View(clientVM);
         }
 
         // GET: Client/Create

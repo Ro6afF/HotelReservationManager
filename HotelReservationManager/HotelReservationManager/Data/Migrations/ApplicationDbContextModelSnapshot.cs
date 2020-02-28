@@ -44,14 +44,27 @@ namespace HotelReservationManager.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.HasKey("Id");
+
+                    b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("HotelReservationManager.Data.Models.ClientReservation", b =>
+                {
+                    b.Property<string>("ClientId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("ReservationId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ClientId", "ReservationId");
 
                     b.HasIndex("ReservationId");
 
-                    b.ToTable("Clients");
+                    b.ToTable("ClientReservation");
                 });
 
             modelBuilder.Entity("HotelReservationManager.Data.Models.Reservation", b =>
@@ -348,11 +361,19 @@ namespace HotelReservationManager.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("HotelReservationManager.Data.Models.Client", b =>
+            modelBuilder.Entity("HotelReservationManager.Data.Models.ClientReservation", b =>
                 {
-                    b.HasOne("HotelReservationManager.Data.Models.Reservation", null)
-                        .WithMany("Guests")
-                        .HasForeignKey("ReservationId");
+                    b.HasOne("HotelReservationManager.Data.Models.Client", "Client")
+                        .WithMany("ClientReservations")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HotelReservationManager.Data.Models.Reservation", "Reservation")
+                        .WithMany("ClientReservations")
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("HotelReservationManager.Data.Models.Reservation", b =>

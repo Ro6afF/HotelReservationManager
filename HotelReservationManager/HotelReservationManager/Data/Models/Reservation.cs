@@ -10,12 +10,12 @@ namespace HotelReservationManager.Data.Models
     {
 
         [Required]
-        public Room Room { get; set; }
+        public virtual Room Room { get; set; }
 
         [Required]
-        public User Creator { get; set; }
+        public virtual User Creator { get; set; }
 
-        public IEnumerable<Client> Guests { get; set; }
+        public virtual List<ClientReservation> ClientReservations { get; set; }
 
         [Required]
         [DataType(DataType.Date)]

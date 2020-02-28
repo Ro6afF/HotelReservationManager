@@ -28,7 +28,7 @@ namespace HotelReservationManager.Controllers
         // GET: Reservation
         public async Task<IActionResult> Index()
         {
-            var reservations = await _context.Reservations.Include(x => x.Creator).Include(x => x.Room).Include(x => x.Guests).ToListAsync();
+            var reservations = await _context.Reservations.ToListAsync();
             return View(reservations);
         }
 
@@ -40,7 +40,7 @@ namespace HotelReservationManager.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations.Include(x => x.Creator).Include(x => x.Room).Include(x => x.Guests).FirstOrDefaultAsync(m => m.Id == id);
+            var reservation = await _context.Reservations.FirstOrDefaultAsync(m => m.Id == id);
 
             if (reservation == null)
             {
@@ -57,7 +57,7 @@ namespace HotelReservationManager.Controllers
             var reservationVM = new CreateReservationViewModel
             {
                 AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync(),
-                AvaiableGuests = await _context.Clients.ToListAsync(),
+                AvaiableClients = await _context.Clients.ToListAsync(),
                 CheckInTime = DateTime.Now,
                 CheckOutTime = DateTime.Now
             };
@@ -94,15 +94,14 @@ namespace HotelReservationManager.Controllers
                     Breakfast = reservationVM.Breakfast,
                     CheckInTime = reservationVM.CheckInTime,
                     CheckOutTime = reservationVM.CheckOutTime,
-                    // Guests = reservationVM.Clients,
-                    Guests = _context.Clients.ToList(),
                     Room = selectedRoom,
                     Creator = currentUser,
                     TotalPrice = 0
                 };
+                reservation.ClientReservations = await _context.Clients.Select(c => new ClientReservation { Client = c, Reservation = reservation }).ToListAsync();
 
                 double price = 0;
-                foreach (var client in reservation.Guests)
+                foreach (var client in reservation.ClientReservations.Select(x => x.Client))
                 {
                     price += (client.Mature) ? reservation.Room.Price : reservation.Room.PriceChildren;
                 }
@@ -113,7 +112,7 @@ namespace HotelReservationManager.Controllers
                 return RedirectToAction(nameof(Index));
             }
             reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync();
-            reservationVM.AvaiableGuests = await _context.Clients.ToListAsync();
+            reservationVM.AvaiableClients = await _context.Clients.ToListAsync();
             return View(reservationVM);
         }
 
@@ -125,7 +124,7 @@ namespace HotelReservationManager.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations.Include(x => x.Guests).Include(x => x.Room).Where(x => x.Id == id).FirstOrDefaultAsync();
+            var reservation = await _context.Reservations.FirstOrDefaultAsync();
             if (reservation == null)
             {
                 return NotFound();
@@ -137,11 +136,11 @@ namespace HotelReservationManager.Controllers
                 Breakfast = reservation.Breakfast,
                 CheckInTime = reservation.CheckInTime,
                 CheckOutTime = reservation.CheckOutTime,
-                Clients = reservation.Guests,
+                Clients = reservation.ClientReservations.Select(x => x.Client),
                 RoomId = reservation.Room.Id,
                 Id = reservation.Id,
                 AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync(),
-                AvaiableGuests = await _context.Clients.ToListAsync()
+                AvaiableClients = await _context.Clients.ToListAsync()
             };
             return View(reservationVM);
         }
@@ -166,7 +165,7 @@ namespace HotelReservationManager.Controllers
                     return Unauthorized();
                 }
 
-                var reservation = await _context.Reservations.Include(x => x.Room).Where(x => x.Id == reservationVM.Id).FirstOrDefaultAsync();
+                var reservation = await _context.Reservations.Where(x => x.Id == reservationVM.Id).FirstOrDefaultAsync();
 
                 var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
 
@@ -177,10 +176,10 @@ namespace HotelReservationManager.Controllers
                     reservation.CheckInTime = reservationVM.CheckInTime;
                     reservation.CheckOutTime = reservationVM.CheckOutTime;
                     reservation.Creator = currentUser;
-                    reservation.Guests = _context.Clients.ToList();
+                    reservation.ClientReservations = await _context.Clients.Select(c => new ClientReservation { Client = c, Reservation = reservation }).ToListAsync();
                     reservation.Room = selectedRoom;
                     double price = 0;
-                    foreach (var client in reservation.Guests)
+                    foreach (var client in reservation.ClientReservations.Select(x => x.Client))
                     {
                         price += (client.Mature) ? reservation.Room.Price : reservation.Room.PriceChildren;
                     }
@@ -212,7 +211,7 @@ namespace HotelReservationManager.Controllers
                 return NotFound();
             }
 
-            var reservation = await _context.Reservations.Include(x => x.Creator).Include(x => x.Room).Include(x => x.Guests)
+            var reservation = await _context.Reservations
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (reservation == null)
             {
@@ -227,7 +226,7 @@ namespace HotelReservationManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var reservation = await _context.Reservations.Include(x => x.Room).Include(x => x.Guests).Include(x => x.Creator).Where(x => x.Id == id).FirstOrDefaultAsync();
+            var reservation = await _context.Reservations.Where(x => x.Id == id).FirstOrDefaultAsync();
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

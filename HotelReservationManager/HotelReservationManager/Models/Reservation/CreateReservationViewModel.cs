@@ -9,7 +9,7 @@ namespace HotelReservationManager.Models.Reservation
     public class CreateReservationViewModel
     {
         public IEnumerable<Data.Models.Room> AvaiableRooms { get; set; }
-        public IEnumerable<Data.Models.Client> AvaiableGuests { get; set; }
+        public IEnumerable<Data.Models.Client> AvaiableClients { get; set; }
         public string RoomId { get; set; }
         public string CreatorId { get; set; }
 

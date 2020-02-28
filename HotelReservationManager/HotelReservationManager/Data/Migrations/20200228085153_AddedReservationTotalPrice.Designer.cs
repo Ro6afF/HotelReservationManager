@@ -347,7 +347,7 @@ namespace HotelReservationManager.Data.Migrations
             modelBuilder.Entity("HotelReservationManager.Data.Models.Client", b =>
                 {
                     b.HasOne("HotelReservationManager.Data.Models.Reservation", null)
-                        .WithMany("Guests")
+                        .WithMany("Clients")
                         .HasForeignKey("ReservationId");
                 });
 
