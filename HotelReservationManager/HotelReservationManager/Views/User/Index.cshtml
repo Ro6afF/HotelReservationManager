@@ -82,7 +82,8 @@
     <script>
         $(document).ready(function () {
             $('#userTable').DataTable({
-                "lengthMenu": [10, 25, 50]
+                "lengthMenu": [10, 25, 50],
+                'columns': [null, null, null, null, null, null, null, null, { 'searchable': false }]
             });
         });
     </script>

@@ -35,7 +35,7 @@ namespace HotelReservationManager.Data
             var reservs = await Reservations.Where(x => x.Room.Id == room.Id).ToListAsync();
             foreach (var reserv in reservs)
             {
-                if (reserv.CheckInTime <= when && when <= reserv.CheckOutTime)
+                if (reserv.Room.Id != room.Id && reserv.CheckInTime <= when && when <= reserv.CheckOutTime)
                 {
                     return false;
                 }
@@ -47,9 +47,10 @@ namespace HotelReservationManager.Data
             var reservs = await Reservations.Where(x => x.Room.Id == room.Id).ToListAsync();
             foreach (var reserv in reservs)
             {
-                if ((begin >= reserv.CheckInTime && begin <= reserv.CheckOutTime) ||
+                if (reserv.Room.Id != room.Id &&
+                    ((begin >= reserv.CheckInTime && begin <= reserv.CheckOutTime) ||
                     (end >= reserv.CheckInTime && end <= reserv.CheckOutTime) ||
-                    (begin <= reserv.CheckOutTime && end >= reserv.CheckOutTime))
+                    (begin <= reserv.CheckOutTime && end >= reserv.CheckOutTime)))
                 {
                     return false;
                 }

@@ -56,7 +56,7 @@ namespace HotelReservationManager.Controllers
             await _context.UpdateRooms();
             var reservationVM = new CreateReservationViewModel
             {
-                AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync(),
+                AvaiableRooms = await _context.Rooms.OrderBy(x => x.Number).ToListAsync(),
                 AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync(),
                 CheckInTime = DateTime.Now,
                 CheckOutTime = DateTime.Now
@@ -77,6 +77,16 @@ namespace HotelReservationManager.Controllers
                 ModelState.AddModelError(string.Empty, "The check-out cannot be before the check-in");
             }
 
+            var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
+            if (!await _context.IsRoomFreeInPeriod(selectedRoom, reservationVM.CheckInTime, reservationVM.CheckOutTime))
+            {
+                ModelState.AddModelError("RoomId", "The selected room is not free during the entire period selected");
+            }
+            if (selectedRoom.Capacity < reservationVM.ClientIds.Count)
+            {
+                ModelState.AddModelError("RoomId", "The selected room doesn't have enough capacity for the clients");
+            }
+
             if (ModelState.IsValid)
             {
                 var currentUser = await _context.Users.FindAsync(_userManager.GetUserId(User));
@@ -85,7 +95,6 @@ namespace HotelReservationManager.Controllers
                     return Unauthorized();
                 }
 
-                var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
 
                 var reservation = new Reservation
                 {
@@ -112,7 +121,7 @@ namespace HotelReservationManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync();
+            reservationVM.AvaiableRooms = await _context.Rooms.OrderBy(x => x.Number).ToListAsync();
             reservationVM.AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync();
             return View(reservationVM);
         }
@@ -143,7 +152,7 @@ namespace HotelReservationManager.Controllers
                 RoomId = reservation.Room.Id,
                 Id = reservation.Id,
             };
-            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync();
+            reservationVM.AvaiableRooms = await _context.Rooms.OrderBy(x => x.Number).ToListAsync();
             reservationVM.AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync();
             return View(reservationVM);
         }
@@ -160,6 +169,16 @@ namespace HotelReservationManager.Controllers
                 ModelState.AddModelError(string.Empty, "The check-out cannot be before the check-in");
             }
 
+            var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
+            if (!await _context.IsRoomFreeInPeriod(selectedRoom, reservationVM.CheckInTime, reservationVM.CheckOutTime))
+            {
+                ModelState.AddModelError("RoomId", "The selected room is not free during the entire period selected");
+            }
+            if(selectedRoom.Capacity < reservationVM.ClientIds.Count)
+            {
+                ModelState.AddModelError("RoomId", "The selected room doesn't have enough capacity for the clients");
+            }
+
             if (ModelState.IsValid)
             {
                 var currentUser = await _context.Users.FindAsync(_userManager.GetUserId(User));
@@ -169,7 +188,6 @@ namespace HotelReservationManager.Controllers
                 }
 
                 var reservation = await _context.Reservations.Where(x => x.Id == reservationVM.Id).FirstOrDefaultAsync();
-                var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
                 foreach (var item in reservation.ClientReservations)
                 {
                     _context.Remove(item);
@@ -206,7 +224,7 @@ namespace HotelReservationManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync();
+            reservationVM.AvaiableRooms = await _context.Rooms.OrderBy(x => x.Number).ToListAsync();
             reservationVM.AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync();
             return View(reservationVM);
         }
