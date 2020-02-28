@@ -19,13 +19,23 @@ namespace HotelReservationManager.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<User> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserController(ApplicationDbContext context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public UserController(ApplicationDbContext context, UserManager<User> userManager)
         {
             _context = context;
             _userManager = userManager;
-            _roleManager = roleManager;
+        }
+
+        private bool CheckEGN(string EGN)
+        {
+            var a = new int[] { 2, 4, 8, 5, 10, 9, 7, 3, 6 };
+            int sum = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                sum += (EGN[i] - '0') * a[i];
+            }
+            sum /= 11;
+            return EGN[9] == (130 - 11 * sum + '0');
         }
 
         // GET: User
@@ -47,6 +57,23 @@ namespace HotelReservationManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("FirstName,SecondName,LastName,EGN,UserName,Email,PhoneNumber,Password,ConfirmPassword")] CreateUserViewModel userVM)
         {
+            foreach (var item in userVM.EGN)
+            {
+                if (item < '0' || item > '9')
+                {
+                    ModelState.AddModelError("EGN", "The EGN mush have only digits");
+                    goto Cont;
+                }
+            }
+            if (!CheckEGN(userVM.EGN))
+            {
+                ModelState.AddModelError("EGN", "Invalid EGN");
+            }
+            if (await _context.Users.Where(x => x.EGN == userVM.EGN).CountAsync() != 0)
+            {
+                ModelState.AddModelError("EGN", "User with this EGN exists");
+            }
+        Cont:
             if (ModelState.IsValid)
             {
                 var user = new User
@@ -110,6 +137,23 @@ namespace HotelReservationManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit([Bind("FirstName,SecondName,LastName,EGN,Id,UserName,Email,PhoneNumber")] EditUserViewModel userVM)
         {
+            foreach (var item in userVM.EGN)
+            {
+                if (item < '0' || item > '9')
+                {
+                    ModelState.AddModelError("EGN", "The EGN mush have only digits");
+                    goto Cont;
+                }
+            }
+            if (!CheckEGN(userVM.EGN))
+            {
+                ModelState.AddModelError("EGN", "Invalid EGN");
+            }
+            if (await _context.Users.Where(x => x.EGN == userVM.EGN).CountAsync() != 0)
+            {
+                ModelState.AddModelError("EGN", "User with this EGN exists");
+            }
+        Cont:
             if (ModelState.IsValid)
             {
                 try
@@ -177,17 +221,21 @@ namespace HotelReservationManager.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user.Active)
             {
+                await _userManager.RemoveFromRoleAsync(user, "Employee");
+                await _userManager.UpdateSecurityStampAsync(user);
                 user.Active = false;
                 user.FireTime = DateTime.Now;
             }
             else
             {
+                await _userManager.AddToRoleAsync(user, "Employee");
                 user.Active = true;
                 user.FireTime = null;
                 user.HireTime = DateTime.Now;
             }
             _context.Update(user);
             await _context.SaveChangesAsync();
+            await _userManager.UpdateSecurityStampAsync(user);
             return RedirectToAction(nameof(Index));
         }
 

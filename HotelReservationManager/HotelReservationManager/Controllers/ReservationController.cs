@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Amdin,Employee")]
     public class ReservationController : Controller
     {
         private readonly ApplicationDbContext _context;

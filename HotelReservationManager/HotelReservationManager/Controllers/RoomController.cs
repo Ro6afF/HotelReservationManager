@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
+    [Authorize(Roles = "Amdin,Employee")]
     public class RoomController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,7 +23,6 @@ namespace HotelReservationManager.Controllers
         }
 
         // GET: Rooms
-        [Authorize]
         public async Task<IActionResult> Index()
         {
             await _context.UpdateRooms();
@@ -44,6 +44,18 @@ namespace HotelReservationManager.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Capacity,Type,Free,Price,PriceChildren,Number")] CreateRoomViewModel roomVM)
         {
+            if (roomVM.Price < 0)
+            {
+                ModelState.AddModelError("Price", "The price must be positive");
+            }
+            if (roomVM.PriceChildren < 0)
+            {
+                ModelState.AddModelError("PriceChildren", "The price for children must be positive");
+            }
+            if (await _context.Rooms.Where(x => x.Number == roomVM.Number).CountAsync() != 0)
+            {
+                ModelState.AddModelError("Number", "Room with the same number already exists");
+            }
             if (ModelState.IsValid)
             {
                 var room = new Room
@@ -99,11 +111,23 @@ namespace HotelReservationManager.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit([Bind("Capacity,Type,Free,Price,PriceChildren,Number,Id")] EditRoomViewModel roomVM)
         {
+            if (roomVM.Price < 0)
+            {
+                ModelState.AddModelError("Price", "The price must be positive");
+            }
+            if (roomVM.PriceChildren < 0)
+            {
+                ModelState.AddModelError("PriceChildren", "The price for children must be positive");
+            }
+            var room = await _context.Rooms.FindAsync(roomVM.Id);
+            if (await _context.Rooms.Where(x => x.Number == roomVM.Number).CountAsync() != 0 && roomVM.Number != room.Number)
+            {
+                ModelState.AddModelError("Number", "Room with the same number already exists");
+            }
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var room = await _context.Rooms.FindAsync(roomVM.Id);
                     room.Capacity = roomVM.Capacity;
                     room.Type = roomVM.Type;
                     room.Free = roomVM.Free;

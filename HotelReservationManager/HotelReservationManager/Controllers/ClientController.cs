@@ -9,10 +9,11 @@ using HotelReservationManager.Data;
 using HotelReservationManager.Data.Models;
 using HotelReservationManager.Models.Client;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace HotelReservationManager.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Amdin,Employee")]
     public class ClientController : Controller
     {
         private readonly ApplicationDbContext _context;
