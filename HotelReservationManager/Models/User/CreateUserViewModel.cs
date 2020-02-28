@@ -37,7 +37,7 @@ namespace HotelReservationManager.Models.User
         public string SecondName { get; set; }
 
         [Required]
-        [Display(Name = "Lase name")]
+        [Display(Name = "Last name")]
         public string LastName { get; set; }
 
         [Required]

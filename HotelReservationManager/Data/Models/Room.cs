@@ -21,6 +21,7 @@ namespace HotelReservationManager.Data.Models
         public double Price { get; set; }
 
         [Required]
+        [Display(Name = "Price for children")]
         public double PriceChildren { get; set; }
 
         [Required]

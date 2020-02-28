@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HotelReservationManager.Controllers
 {
-    // TODO: Role access modifiers
     public class RoomController : Controller
     {
         private readonly ApplicationDbContext _context;

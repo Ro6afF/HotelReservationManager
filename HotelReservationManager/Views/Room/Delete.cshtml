@@ -26,8 +26,8 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Free)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Free)
+        <dd class="col-sm-10">
+            @(Model.Free ? "Free" : "Occupied")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Price)

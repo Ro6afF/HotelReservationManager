@@ -97,6 +97,8 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            if (_userManager.Users.Count() > 0)
+                return Unauthorized();
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
@@ -123,6 +125,7 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
                         await _roleManager.CreateAsync(new IdentityRole("Admin"));
                         await _roleManager.CreateAsync(new IdentityRole("Employee"));
                         await _userManager.AddToRoleAsync(user, "Admin");
+                        await _userManager.AddToRoleAsync(user, "Employee");
                     }
                     else
                     {

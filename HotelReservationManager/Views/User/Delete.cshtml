@@ -44,8 +44,8 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Active)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Active)
+        <dd class="col-sm-10">
+            @(Model.Active ? "Active" : "Disabled")
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.FireTime)
