@@ -56,8 +56,8 @@ namespace HotelReservationManager.Controllers
             await _context.UpdateRooms();
             var reservationVM = new CreateReservationViewModel
             {
-                AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync(),
-                AvaiableClients = await _context.Clients.ToListAsync(),
+                AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync(),
+                AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync(),
                 CheckInTime = DateTime.Now,
                 CheckOutTime = DateTime.Now
             };
@@ -70,7 +70,7 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId")] CreateReservationViewModel reservationVM)
+        public async Task<IActionResult> Create([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId,ClientIds")] CreateReservationViewModel reservationVM)
         {
             if (reservationVM.CheckOutTime < reservationVM.CheckInTime)
             {
@@ -98,7 +98,8 @@ namespace HotelReservationManager.Controllers
                     Creator = currentUser,
                     TotalPrice = 0
                 };
-                reservation.ClientReservations = await _context.Clients.Select(c => new ClientReservation { Client = c, Reservation = reservation }).ToListAsync();
+                reservation.ClientReservations = reservationVM.ClientIds.Select(x => _context.Clients.Find(x))
+                    .Select(c => new ClientReservation { Client = c, Reservation = reservation }).ToList();
 
                 double price = 0;
                 foreach (var client in reservation.ClientReservations.Select(x => x.Client))
@@ -111,8 +112,8 @@ namespace HotelReservationManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync();
-            reservationVM.AvaiableClients = await _context.Clients.ToListAsync();
+            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync();
+            reservationVM.AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync();
             return View(reservationVM);
         }
 
@@ -129,19 +130,21 @@ namespace HotelReservationManager.Controllers
             {
                 return NotFound();
             }
+
             await _context.UpdateRooms();
+
             var reservationVM = new EditReservationViewModel
             {
                 AllInclusive = reservation.AllInclusive,
                 Breakfast = reservation.Breakfast,
                 CheckInTime = reservation.CheckInTime,
                 CheckOutTime = reservation.CheckOutTime,
-                Clients = reservation.ClientReservations.Select(x => x.Client),
+                ClientIds = reservation.ClientReservations.Select(x => x.Client.Id).ToList(),
                 RoomId = reservation.Room.Id,
                 Id = reservation.Id,
-                AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync(),
-                AvaiableClients = await _context.Clients.ToListAsync()
             };
+            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync();
+            reservationVM.AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync();
             return View(reservationVM);
         }
 
@@ -150,9 +153,9 @@ namespace HotelReservationManager.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId,Clients")] EditReservationViewModel reservationVM)
+        public async Task<IActionResult> Edit([Bind("CheckInTime,CheckOutTime,Breakfast,AllInclusive,Id,RoomId,ClientIds")] EditReservationViewModel reservationVM)
         {
-            if(reservationVM.CheckOutTime < reservationVM.CheckInTime)
+            if (reservationVM.CheckOutTime < reservationVM.CheckInTime)
             {
                 ModelState.AddModelError(string.Empty, "The check-out cannot be before the check-in");
             }
@@ -166,9 +169,11 @@ namespace HotelReservationManager.Controllers
                 }
 
                 var reservation = await _context.Reservations.Where(x => x.Id == reservationVM.Id).FirstOrDefaultAsync();
-
                 var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
-
+                foreach (var item in reservation.ClientReservations)
+                {
+                    _context.Remove(item);
+                }
                 try
                 {
                     reservation.AllInclusive = reservationVM.AllInclusive;
@@ -176,7 +181,8 @@ namespace HotelReservationManager.Controllers
                     reservation.CheckInTime = reservationVM.CheckInTime;
                     reservation.CheckOutTime = reservationVM.CheckOutTime;
                     reservation.Creator = currentUser;
-                    reservation.ClientReservations = await _context.Clients.Select(c => new ClientReservation { Client = c, Reservation = reservation }).ToListAsync();
+                    reservation.ClientReservations = reservationVM.ClientIds.Select(x => _context.Clients.Find(x))
+                        .Select(c => new ClientReservation { Client = c, Reservation = reservation }).ToList();
                     reservation.Room = selectedRoom;
                     double price = 0;
                     foreach (var client in reservation.ClientReservations.Select(x => x.Client))
@@ -200,6 +206,8 @@ namespace HotelReservationManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            reservationVM.AvaiableRooms = await _context.Rooms.Where(x => x.Free).OrderBy(x => x.Number).ToListAsync();
+            reservationVM.AvaiableClients = await _context.Clients.OrderBy(x => x.FirstName).ThenBy(x => x.FirstName).ToListAsync();
             return View(reservationVM);
         }
 

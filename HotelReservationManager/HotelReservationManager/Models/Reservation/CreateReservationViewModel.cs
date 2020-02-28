@@ -8,12 +8,15 @@ namespace HotelReservationManager.Models.Reservation
 {
     public class CreateReservationViewModel
     {
-        public IEnumerable<Data.Models.Room> AvaiableRooms { get; set; }
-        public IEnumerable<Data.Models.Client> AvaiableClients { get; set; }
+        public List<Data.Models.Room> AvaiableRooms { get; set; }
+        public List<Data.Models.Client> AvaiableClients { get; set; }
+
+        [Display(Name = "Room number")]
         public string RoomId { get; set; }
         public string CreatorId { get; set; }
 
-        public IEnumerable<Data.Models.Client> Clients { get; set; }
+        [Display(Name = "Clients")]
+        public List<string> ClientIds { get; set; }
 
         [Required]
         [DataType(DataType.Date)]
