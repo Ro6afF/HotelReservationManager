@@ -12,17 +12,24 @@ namespace HotelReservationManager.Models.Client
 
         [Required]
         [Display(Name = "First Name")]
+        [StringLength(50)]
         public string FirstName { get; set; }
 
         [Required]
         [Display(Name = "Last Name")]
+        [StringLength(50)]
         public string LastName { get; set; }
 
         [Required]
+        [Phone]
+        [DataType(DataType.PhoneNumber)]
+        [RegularExpression(@"((?:\+|00)[17](?: |\-)?|(?:\+|00)[1-9]\d{0,2}(?: |\-)?|(?:\+|00)1\-\d{3}(?: |\-)?)?(0\d|\([0-9]{3}\)|[1-9]{0,3})(?:((?: |\-)[0-9]{2}){4}|((?:[0-9]{2}){4})|((?: |\-)[0-9]{3}(?: |\-)[0-9]{4})|([0-9]{7}))", ErrorMessage = "Invalid phone number")]
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
 
         [Required]
+        [EmailAddress]
+        [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
 
         [Required]

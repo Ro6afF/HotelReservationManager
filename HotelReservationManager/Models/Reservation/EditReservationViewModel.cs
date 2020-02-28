@@ -13,15 +13,24 @@ namespace HotelReservationManager.Models.Reservation
         public IEnumerable<Data.Models.Client> AvaiableGuests { get; set; }
         public string RoomId { get; set; }
         public string CreatorId { get; set; }
+
+        [Required]
         public IEnumerable<Data.Models.Client> Clients { get; set; }
 
+        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Check-in")]
         public DateTime CheckInTime { get; set; }
+
+        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Check-out")]
         public DateTime CheckOutTime { get; set; }
+
+        [Required]
         public bool Breakfast { get; set; }
+        
+        [Required]
         public bool AllInclusive { get; set; }
     }
 }

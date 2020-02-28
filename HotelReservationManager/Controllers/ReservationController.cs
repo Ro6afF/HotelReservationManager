@@ -81,13 +81,6 @@ namespace HotelReservationManager.Controllers
                 }
 
                 var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
-                if (selectedRoom == null)
-                {
-                    return NotFound();
-                }
-                selectedRoom.Free = false;
-                _context.Update(selectedRoom);
-
 
                 var reservation = new Reservation
                 {
@@ -161,19 +154,8 @@ namespace HotelReservationManager.Controllers
                     return Unauthorized();
                 }
                 var reservation = await _context.Reservations.Include(x => x.Room).Where(x => x.Id == reservationVM.Id).FirstOrDefaultAsync();
-                var prevRoom = await _context.Rooms.FindAsync(reservation.Room.Id);
-                if (prevRoom != null)
-                {
-                    prevRoom.Free = true;
-                    _context.Update(prevRoom);
-                }
 
                 var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
-                if (selectedRoom == null)
-                {
-                    return NotFound();
-                }
-                selectedRoom.Free = false;
                 _context.Update(selectedRoom);
                 try
                 {
@@ -190,12 +172,6 @@ namespace HotelReservationManager.Controllers
                         price += (client.Mature) ? reservation.Room.Price : reservation.Room.PriceChildren;
                     }
                     reservation.TotalPrice = price;
-                    if (selectedRoom == null)
-                    {
-                        return NotFound();
-                    }
-                    selectedRoom.Free = false;
-                    _context.Update(selectedRoom);
                     _context.Update(reservation);
                     await _context.SaveChangesAsync();
                 }
@@ -233,19 +209,12 @@ namespace HotelReservationManager.Controllers
             return View(reservation);
         }
 
-        // TODO: Free the room
         // POST: Reservation/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var reservation = await _context.Reservations.Include(x => x.Room).Where(x => x.Id == id).FirstOrDefaultAsync();
-            var selectedRoom = await _context.Rooms.FindAsync(reservation.Room.Id);
-            if (selectedRoom != null)
-            {
-                selectedRoom.Free = false;
-                _context.Update(selectedRoom);
-            }
+            var reservation = await _context.Reservations.Where(x => x.Id == id).FirstOrDefaultAsync();
             _context.Reservations.Remove(reservation);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));

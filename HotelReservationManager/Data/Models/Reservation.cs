@@ -12,8 +12,10 @@ namespace HotelReservationManager.Data.Models
         [Required]
         public Room Room { get; set; }
 
+
         [Required]
         public User Creator { get; set; }
+
 
         [Required]
         public IEnumerable<Client> Guests { get; set; }
@@ -31,11 +33,14 @@ namespace HotelReservationManager.Data.Models
         [Required]
         public bool Breakfast { get; set; }
 
-        [Required]
-        [Display(Name = "Allinclusive")]
-        public bool AllInclusive { get; set; }
 
         [Required]
+        [Display(Name = "All inclusive")]
+        public bool AllInclusive { get; set; }
+
+
+        [Required]
+        [Display(Name = "Total price")]
         public double TotalPrice { get; set; }
 
     }

@@ -25,6 +25,7 @@ namespace HotelReservationManager.Data.Models
         public double PriceChildren { get; set; }
 
         [Required]
+        [StringLength(50)]
         public string Number { get; set; }
     }
 }
