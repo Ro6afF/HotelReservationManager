@@ -53,7 +53,7 @@ namespace HotelReservationManager.Controllers
         // GET: Reservation/Create
         public async Task<IActionResult> Create()
         {
-            _context.UpdateRooms();
+            await _context.UpdateRooms();
             var reservationVM = new CreateReservationViewModel
             {
                 AvaiableRooms = await _context.Rooms.Where(x => x.Free).ToListAsync(),
@@ -63,6 +63,7 @@ namespace HotelReservationManager.Controllers
             };
             return View(reservationVM);
         }
+
 
         // POST: Reservation/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
@@ -129,6 +130,7 @@ namespace HotelReservationManager.Controllers
             {
                 return NotFound();
             }
+            await _context.UpdateRooms();
             var reservationVM = new EditReservationViewModel
             {
                 AllInclusive = reservation.AllInclusive,

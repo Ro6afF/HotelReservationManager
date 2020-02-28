@@ -25,7 +25,7 @@ namespace HotelReservationManager.Controllers
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            _context.UpdateRooms();
+            await _context.UpdateRooms();
             return View(await _context.Rooms.ToListAsync());
         }
 
@@ -77,7 +77,7 @@ namespace HotelReservationManager.Controllers
             {
                 return NotFound();
             }
-
+            await _context.UpdateRoom(room);
             var roomVM = new EditRoomViewModel
             {
                 Capacity = room.Capacity,
