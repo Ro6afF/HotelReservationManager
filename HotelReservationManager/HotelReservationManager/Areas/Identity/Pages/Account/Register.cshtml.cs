@@ -103,11 +103,39 @@ namespace HotelReservationManager.Areas.Identity.Pages.Account
             return Page();
         }
 
+        private bool CheckEGN(string EGN)
+        {
+            var a = new int[] { 2, 4, 8, 5, 10, 9, 7, 3, 6 };
+            int sum = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                sum += (EGN[i] - '0') * a[i];
+            }
+            sum %= 11;
+            if (sum == 10)
+                sum = 0;
+            return EGN[9] == (sum + '0');
+        }
+
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             if (_userManager.Users.Count() > 0)
                 return Unauthorized();
             returnUrl = returnUrl ?? Url.Content("~/");
+
+            foreach (var item in Input.EGN)
+            {
+                if (item < '0' || item > '9')
+                {
+                    ModelState.AddModelError("EGN", "The EGN mush have only digits");
+                    goto Cont;
+                }
+            }
+            if (!CheckEGN(Input.EGN))
+            {
+                ModelState.AddModelError("EGN", "Invalid EGN");
+            }
+        Cont:
             if (ModelState.IsValid)
             {
                 var user = new User
