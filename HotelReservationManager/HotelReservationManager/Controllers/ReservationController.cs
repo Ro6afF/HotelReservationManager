@@ -82,9 +82,20 @@ namespace HotelReservationManager.Controllers
             {
                 ModelState.AddModelError("RoomId", "The selected room is not free during the entire period selected");
             }
-            if (selectedRoom.Capacity < reservationVM.ClientIds.Count)
+            if(reservationVM.ClientIds != null) 
             {
-                ModelState.AddModelError("RoomId", "The selected room doesn't have enough capacity for the clients");
+                if (reservationVM.ClientIds.Count == 0)
+                {
+                    ModelState.AddModelError("ClientIds", "Select clients");
+                }
+                if (selectedRoom.Capacity < reservationVM.ClientIds.Count)
+                {
+                    ModelState.AddModelError("RoomId", "The selected room doesn't have enough capacity for the clients");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("ClientIds", "Select clients");
             }
 
             if (ModelState.IsValid)
@@ -170,13 +181,24 @@ namespace HotelReservationManager.Controllers
             }
 
             var selectedRoom = await _context.Rooms.FindAsync(reservationVM.RoomId);
-            if (!await _context.IsRoomFreeInPeriod(selectedRoom, reservationVM.CheckInTime, reservationVM.CheckOutTime))
+            if (!await _context.IsRoomFreeInPeriod(selectedRoom, reservationVM.CheckInTime, reservationVM.CheckOutTime, reservationVM.Id))
             {
                 ModelState.AddModelError("RoomId", "The selected room is not free during the entire period selected");
             }
-            if(selectedRoom.Capacity < reservationVM.ClientIds.Count)
+            if (reservationVM.ClientIds != null)
             {
-                ModelState.AddModelError("RoomId", "The selected room doesn't have enough capacity for the clients");
+                if (reservationVM.ClientIds.Count == 0)
+                {
+                    ModelState.AddModelError("ClientIds", "Select clients");
+                }
+                if (selectedRoom.Capacity < reservationVM.ClientIds.Count)
+                {
+                    ModelState.AddModelError("RoomId", "The selected room doesn't have enough capacity for the clients");
+                }
+            }
+            else
+            {
+                ModelState.AddModelError("ClientIds", "Select clients");
             }
 
             if (ModelState.IsValid)

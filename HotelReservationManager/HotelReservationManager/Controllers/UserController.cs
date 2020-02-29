@@ -26,7 +26,6 @@ namespace HotelReservationManager.Controllers
             _userManager = userManager;
         }
 
-        //TODO: fix this
         private bool CheckEGN(string EGN)
         {
             var a = new int[] { 2, 4, 8, 5, 10, 9, 7, 3, 6 };
@@ -35,8 +34,10 @@ namespace HotelReservationManager.Controllers
             {
                 sum += (EGN[i] - '0') * a[i];
             }
-            sum /= 11;
-            return EGN[9] == (130 - 11 * sum + '0');
+            sum %= 11;
+            if (sum == 10)
+                sum = 0;
+            return EGN[9] == (sum + '0');
         }
 
         // GET: User

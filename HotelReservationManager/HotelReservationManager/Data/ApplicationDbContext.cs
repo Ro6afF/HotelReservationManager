@@ -29,28 +29,14 @@ namespace HotelReservationManager.Data
 
             base.OnConfiguring(optionsBuilder);
         }
-
-        public async Task<bool> IsRoomFree(Room room, DateTime when)
+        public async Task<bool> IsRoomFreeInPeriod(Room room, DateTime begin, DateTime end, string currReservId = null)
         {
-            var reservs = await Reservations.Where(x => x.Room.Id == room.Id).ToListAsync();
+            var reservs = await Reservations.Where(x => x.Room.Id == room.Id && currReservId != x.Id).ToListAsync();
             foreach (var reserv in reservs)
             {
-                if (reserv.Room.Id != room.Id && reserv.CheckInTime <= when && when <= reserv.CheckOutTime)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        public async Task<bool> IsRoomFreeInPeriod(Room room, DateTime begin, DateTime end)
-        {
-            var reservs = await Reservations.Where(x => x.Room.Id == room.Id).ToListAsync();
-            foreach (var reserv in reservs)
-            {
-                if (reserv.Room.Id != room.Id &&
-                    ((begin >= reserv.CheckInTime && begin <= reserv.CheckOutTime) ||
+                if ((begin >= reserv.CheckInTime && begin <= reserv.CheckOutTime) ||
                     (end >= reserv.CheckInTime && end <= reserv.CheckOutTime) ||
-                    (begin <= reserv.CheckOutTime && end >= reserv.CheckOutTime)))
+                    (begin <= reserv.CheckOutTime && end >= reserv.CheckOutTime))
                 {
                     return false;
                 }
