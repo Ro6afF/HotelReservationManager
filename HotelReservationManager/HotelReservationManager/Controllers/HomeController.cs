@@ -28,5 +28,11 @@ namespace HotelReservationManager.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        public IActionResult StatusCode(string code)
+        {
+            ViewData["code"] = code;
+            return View();
+        }
     }
 }

@@ -59,7 +59,10 @@
         $(document).ready(function () {
             $('#clientTable').DataTable({
                 'lengthMenu': [10, 25, 50],
-                'columns': [null, null, null, null, { 'searchable': false }]
+                'columns': [null, null, null, null, {
+                    'searchable': false,
+                    'orderable': false
+                }]
             });
         });
     </script>

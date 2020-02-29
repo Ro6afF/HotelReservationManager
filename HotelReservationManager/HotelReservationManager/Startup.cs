@@ -32,6 +32,11 @@ namespace HotelReservationManager
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<User, IdentityRole>(options => { }).AddEntityFrameworkStores<ApplicationDbContext>();
+            services.ConfigureApplicationCookie(opts =>
+            {
+                opts.LoginPath = "/Identity/Account/Login";
+                opts.AccessDeniedPath = "/Identity/Account/AccessDenied";
+            });
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
@@ -57,6 +62,8 @@ namespace HotelReservationManager
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseStatusCodePagesWithRedirects("/Home/StatusCode?code={0}");
 
             app.UseEndpoints(endpoints =>
             {
