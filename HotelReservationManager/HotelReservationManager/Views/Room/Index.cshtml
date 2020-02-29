@@ -75,15 +75,29 @@
 
 @section Scripts
 {
-    <script>
-        $(document).ready(function () {
-            $('#roomTable').DataTable({
-                "lengthMenu": [10, 25, 50],
-                'columns': [null, null, null, null, null, null, {
-                    'searchable': false,
-                    'orderable': false
-                }]
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            $(document).ready(function () {
+                $('#roomTable').DataTable({
+                    "lengthMenu": [10, 25, 50],
+                    'columns': [null, null, null, null, null, null, {
+                        'searchable': false,
+                        'orderable': false,
+                    }]
+                });
             });
-        });
-    </script>
+        </script>
+    }
+    else
+    {
+        <script>
+            $(document).ready(function () {
+                $('#roomTable').DataTable({
+                    "lengthMenu": [10, 25, 50],
+                    'columns': [null, null, null, null, null, null]
+                });
+            });
+        </script>
+    }
 }
